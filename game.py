@@ -3,13 +3,22 @@ from puzzle import Puzzle
 
 
 class SlidingPuzzle:
-    def __init__(self):
-        self.size = 4
+    def __init__(self, size=4):
+        if size not in (3, 4, 5):
+            raise ValueError("Board size must be 3, 4, or 5.")
+
+        self.size = size
         self.puzzle = Puzzle(self.size)
         self.moves = 0
         self.started = time.monotonic()
         self.completed = False
         self.finished = None
+
+    def recreate_board(self):
+        if self.completed:
+            return False
+        self.puzzle = Puzzle(self.size)
+        return True
 
     def elapsed(self):
         end = self.finished if self.finished is not None else time.monotonic()
@@ -32,7 +41,10 @@ class SlidingPuzzle:
             print("This puzzle is already completed.")
             return
 
-        print("Sliding Puzzle — W/A/S/D moves the blank. Q quits.")
+        print(f"Sliding Puzzle — {self.size}x{self.size}")
+        print("W/A/S/D moves the blank. Q quits.")
+        print("R recreates the board; session moves and time continue.")
+
         while True:
             self.finish_if_solved()
             self.display()
@@ -44,8 +56,12 @@ class SlidingPuzzle:
             key = input("> ").strip().lower()
             if key == "q":
                 return
+            if key == "r":
+                self.recreate_board()
+                print("Board recreated. Session moves and time retained.")
+                continue
             if key not in "wasd":
-                print("Use W/A/S/D.")
+                print("Use W/A/S/D, R, or Q.")
                 continue
             if self.puzzle.move(key):
                 self.moves += 1
