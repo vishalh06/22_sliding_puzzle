@@ -8,8 +8,41 @@ class Puzzle:
 
     def make_board(self):
         tiles = list(range(1, self.size * self.size)) + [0]
-        random.shuffle(tiles)  # intentional solvability defect
-        return [tiles[r * self.size:(r + 1) * self.size] for r in range(self.size)]
+        board = [
+            tiles[r * self.size:(r + 1) * self.size]
+            for r in range(self.size)
+        ]
+
+        blank_r = self.size - 1
+        blank_c = self.size - 1
+        previous_blank = None
+
+        for _ in range(self.size * self.size * 40):
+            neighbours = [
+                (r, c)
+                for r, c in (
+                    (blank_r - 1, blank_c),
+                    (blank_r + 1, blank_c),
+                    (blank_r, blank_c - 1),
+                    (blank_r, blank_c + 1),
+                )
+                if 0 <= r < self.size and 0 <= c < self.size
+                and (r, c) != previous_blank
+            ]
+
+            next_r, next_c = random.choice(neighbours)
+            board[blank_r][blank_c], board[next_r][next_c] = (
+                board[next_r][next_c], board[blank_r][blank_c]
+            )
+            previous_blank = (blank_r, blank_c)
+            blank_r, blank_c = next_r, next_c
+
+        if sum(board, []) == tiles:
+            board[blank_r][blank_c], board[blank_r - 1][blank_c] = (
+                board[blank_r - 1][blank_c], board[blank_r][blank_c]
+            )
+
+        return board
 
     def blank_pos(self):
         for r in range(self.size):
