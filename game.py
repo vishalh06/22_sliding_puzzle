@@ -60,10 +60,11 @@ class SlidingPuzzle:
                 self.recreate_board()
                 print("Board recreated. Session moves and time retained.")
                 continue
-            if key not in "wasd":
+            if key not in ("w", "a", "s", "d"):
                 print("Use W/A/S/D, R, or Q.")
                 continue
             if self.puzzle.move(key):
                 self.moves += 1
+                print("Slide successful.")
             else:
                 print("That move is not possible.")
