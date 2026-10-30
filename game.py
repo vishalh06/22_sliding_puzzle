@@ -8,20 +8,39 @@ class SlidingPuzzle:
         self.puzzle = Puzzle(self.size)
         self.moves = 0
         self.started = time.monotonic()
+        self.completed = False
+        self.finished = None
+
+    def elapsed(self):
+        end = self.finished if self.finished is not None else time.monotonic()
+        return end - self.started
 
     def display(self):
         print()
         for row in self.puzzle.board:
             print(" ".join(f"{x or ' ':>2}" for x in row))
-        print("Moves:", self.moves, " Time:", int(time.monotonic() - self.started), "s")
+        print("Moves:", self.moves, " Time:", int(self.elapsed()), "s")
+
+    def finish_if_solved(self):
+        if not self.completed and self.puzzle.solved():
+            self.completed = True
+            self.finished = time.monotonic()
+        return self.completed
 
     def run(self):
-        print("Sliding Puzzle — W/A/S/D moves the tile into the blank. Q quits.")
+        if self.completed:
+            print("This puzzle is already completed.")
+            return
+
+        print("Sliding Puzzle — W/A/S/D moves the blank. Q quits.")
         while True:
+            self.finish_if_solved()
             self.display()
-            if self.puzzle.solved():
+
+            if self.completed:
                 print("Solved!")
                 return
+
             key = input("> ").strip().lower()
             if key == "q":
                 return
